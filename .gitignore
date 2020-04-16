@@ -8,3 +8,10 @@ gegede.egg-info/
 *.html
 *.pdf
 *.tex
+*.png
+.DS_Store
+*.egg-info
+*.gdml
+*.txt
+*.numbers
+*.root
