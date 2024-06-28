@@ -150,5 +150,6 @@ class WorldBuilder(gegede.builder.Builder):
             g.matter.Mixture(Mixtures["Name"][i],
                              density     = density,
                              components  = tuple(components),
-                             temperature = temperature,
-                             pressure    = pressure)
+                             properties = [('temperature', temperature),
+                                           ('pressure',    pressure)]
+                             )
