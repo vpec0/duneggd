@@ -17,7 +17,7 @@ class WorldBuilder(gegede.builder.Builder):
 
     #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
     def configure(self,
-                  worldDim = [Q('100m'),Q('100m'),Q('100m')], 
+                  worldDim = [Q('100m'),Q('100m'),Q('100m')],
                   worldMat = 'Rock',
                   **kwds):
         self.worldDim   = worldDim
@@ -37,7 +37,7 @@ class WorldBuilder(gegede.builder.Builder):
         InsulationBeam = self.cryoBldr.TotalCryoLayer
         ConcreteThick  = self.detEncBldr.ConcreteThickness
         GroutThick     = self.detEncBldr.GroutThickness
-        
+
 
         ########################### SET THE ORIGIN  #############################
         #                                                                       #
@@ -56,7 +56,7 @@ class WorldBuilder(gegede.builder.Builder):
         setYCenter    -=  0.5*RadioRockThick                                    #
         setYCenter    -=  ConcreteThick                                         #
         setYCenter    -=  GroutThick                                            #
-        #                                                                       #        
+        #                                                                       #
         # Bring z=0 to back of detEnc, then to upstream face of detector.       #
         setZCenter    =   0.5*detEncDim[2] - encBoundToDet[2]                   #
         #  then through cryo steel and upstream dead LAr                        #
@@ -65,7 +65,7 @@ class WorldBuilder(gegede.builder.Builder):
 
 
 
-        
+
         detEncPos     = [ setXCenter, setYCenter, setZCenter ]                  #
         #########################################################################
 
@@ -84,10 +84,10 @@ class WorldBuilder(gegede.builder.Builder):
 
 
         worldBox = geom.shapes.Box( self.name,
-                                    dx=0.5*self.worldDim[0], 
+                                    dx=0.5*self.worldDim[0],
                                     dy=0.5*self.worldDim[1],
                                     dz=0.5*self.worldDim[2])
-        
+
         world_lv = geom.structure.Volume('vol'+self.name, material=self.material, shape=worldBox)
         self.add_volume(world_lv)
 
@@ -103,22 +103,22 @@ class WorldBuilder(gegede.builder.Builder):
 
     #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
     def define_materials(self, g):
+        matnames = ['Elements', 'Molecules', 'Mixtures']
+        from duneggd.larfd import utils
+        matfilepaths = [ utils.resource_file_path(f'duneggd/larfd/MaterialDefinitions/{matname}-Table 1.csv') for matname in matnames ]
+        Elements, Molecules, Mixtures = tuple([pd.read_csv(i) for i in matfilepaths])
 
-        Elements  = pd.read_csv("MaterialDefinitions/Elements-Table 1.csv" )
-        Molecules = pd.read_csv("MaterialDefinitions/Molecules-Table 1.csv")
-        Mixtures  = pd.read_csv("MaterialDefinitions/Mixtures-Table 1.csv" )
-
-        # Define all of the elements 
+        # Define all of the elements
         for i in range(len(Elements)):
             density = str(Elements["AtomicDensity"][i]) + "*" + str(Elements["Units"][i])
             g.matter.Element(Elements["Name"      ][i],
                              Elements["Symbol"    ][i],
                              Elements["AtomicMass"][i],
                              density)
-        
+
         # Define all of the molecules
         MoleculesNull = Molecules.isnull()
-        columns       = list(Molecules.columns.values)        
+        columns       = list(Molecules.columns.values)
         for i in range(len(Molecules)):
             density  = str(Molecules["Density"][i]) + "*" + str(Molecules["Unit"][i])
             elements = []
@@ -148,7 +148,7 @@ class WorldBuilder(gegede.builder.Builder):
                                        Mixtures[columns[counter+1]][i]))
                 counter += 2
             g.matter.Mixture(Mixtures["Name"][i],
-                             density     = density,                             
+                             density     = density,
                              components  = tuple(components),
                              temperature = temperature,
                              pressure    = pressure)
